@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 1312066760804751936}
   - component: {fileID: 6900296337653546668}
   - component: {fileID: 857643761682625043}
-  - component: {fileID: -5093122804200908299}
+  - component: {fileID: 1060781761193103051}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -472,7 +472,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4201964491026429719}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
@@ -589,7 +589,7 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4201964491026429719}
   m_Mesh: {fileID: 0}
---- !u!114 &-5093122804200908299
+--- !u!114 &1060781761193103051
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -598,41 +598,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 4201964491026429719}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
+  m_Script: {fileID: 11500000, guid: c3c0662c8cc25ad44abb90ff8830a91b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_NotificationBehavior: 0
-  m_MaxPlayerCount: 2
-  m_AllowJoining: 1
-  m_JoinBehavior: 0
-  m_PlayerJoinedEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_PlayerLeftEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  m_JoinAction:
-    m_UseReference: 0
-    m_Action:
-      m_Name: 
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: 07bc143a-45ea-4e31-9fa7-7cef4e6523af
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings: []
-      m_Flags: 0
-    m_Reference: {fileID: 0}
-  m_PlayerPrefab: {fileID: 4201964491026429719}
-  m_SplitScreen: 0
-  m_MaintainAspectRatioInSplitScreen: 0
-  m_FixedNumberOfSplitScreens: -1
-  m_SplitScreenRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
+  playerInput: {fileID: 3454349151323973754}
+  camera: {fileID: 5138792261361225677}
 --- !u!1 &5138792261361225677
 GameObject:
   m_ObjectHideFlags: 0
@@ -651,7 +624,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7791050299670300098
 Transform:
   m_ObjectHideFlags: 0
