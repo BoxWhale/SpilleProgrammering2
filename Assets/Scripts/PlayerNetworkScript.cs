@@ -30,24 +30,20 @@ public class PlayerNetworkScript : NetworkBehaviour
     [Client]
     private void OnEnable()
     {
-        sun = GameObject.Find("Sun");
-        playerCamera = transform.Find("PlayerCamera").gameObject;
-        _rb = gameObject.GetComponent<Rigidbody>();
-        playerInput = GetComponent<PlayerInput>();
-        lookAction = playerInput.actions["Player/Look"];
-        moveAction = playerInput.actions["Player/Move"];
+
         
-    }
-    [Client]
-    private void OnDisable()
-    {
-        moveAction.Disable();
     }
     public override void OnStartLocalPlayer()
     {
         base.OnStartLocalPlayer();
+        playerCamera = transform.Find("PlayerCamera").gameObject;
+        playerInput = GetComponent<PlayerInput>();
+        _rb = gameObject.GetComponent<Rigidbody>();
+        sun = GameObject.Find("Sun");
         playerCamera.SetActive(true);
         playerInput.enabled = true;
+        lookAction = playerInput.actions["Player/Look"];
+        moveAction = playerInput.actions["Player/Move"];
         moveAction.Enable();
     }
     public override void OnStopLocalPlayer()
