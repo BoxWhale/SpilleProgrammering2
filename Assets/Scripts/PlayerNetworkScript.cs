@@ -43,6 +43,21 @@ public class PlayerNetworkScript : NetworkBehaviour
     {
         moveAction.Disable();
     }
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
+        playerCamera.SetActive(true);
+        playerInput.enabled = true;
+        moveAction.Enable();
+    }
+    public override void OnStopLocalPlayer()
+    {
+        base.OnStopLocalPlayer();
+        playerCamera.SetActive(false);
+        playerInput.enabled = false;
+        moveAction.Disable();
+    }
+    
     [Client]
     void LateUpdate()
     {
