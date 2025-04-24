@@ -73,8 +73,8 @@ public class PlayerNetworkScript : NetworkBehaviour
         float z = -(r * Mathf.Sin(theta) * Mathf.Sin(phi));
             
 
-        Camera.main.transform.position = transform.position + new Vector3(x, y, z);
-        Camera.main.transform.LookAt(transform.position + Vector3.up * viewOffset);
+        playerCamera.transform.position = transform.position + new Vector3(x, y, z);
+        playerCamera.transform.LookAt(transform.position + Vector3.up * viewOffset);
     }
 
     void PlayerMovement()
