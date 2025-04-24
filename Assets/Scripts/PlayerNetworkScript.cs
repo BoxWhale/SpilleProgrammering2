@@ -27,14 +27,9 @@ public class PlayerNetworkScript : NetworkBehaviour
     [Tooltip("x = min\ny = max")]
     public Vector2 verticalClamp;
     public GameObject sun;
-    [Client]
-    private void OnEnable()
-    {
-
-        
-    }
     public override void OnStartLocalPlayer()
     {
+        if (!isLocalPlayer || !Application.isFocused) return;
         base.OnStartLocalPlayer();
         playerCamera = transform.Find("PlayerCamera").gameObject;
         playerInput = GetComponent<PlayerInput>();
@@ -48,6 +43,7 @@ public class PlayerNetworkScript : NetworkBehaviour
     }
     public override void OnStopLocalPlayer()
     {
+        if (!isLocalPlayer || !Application.isFocused) return;
         base.OnStopLocalPlayer();
         playerCamera.SetActive(false);
         playerInput.enabled = false;
@@ -57,14 +53,14 @@ public class PlayerNetworkScript : NetworkBehaviour
     [Client]
     void LateUpdate()
     {
-        if(!isLocalPlayer) return;
+        if (!isLocalPlayer || !Application.isFocused) return;
         ShadowDetection();
         CameraRotation();
     }
     [Client]
     private void FixedUpdate()
     {
-        if(!isLocalPlayer) return;
+        if (!isLocalPlayer || !Application.isFocused) return;
         PlayerMovement();
         //Debug.Log(moveAction.ReadValue<Vector2>());
     }
