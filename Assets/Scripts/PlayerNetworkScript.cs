@@ -27,23 +27,26 @@ public class PlayerNetworkScript : NetworkBehaviour
     [Tooltip("x = min\ny = max")]
     public Vector2 verticalClamp;
     public GameObject sun;
-    public override void OnStartLocalPlayer()
+    [Client]
+    private void OnEnable()
     {
-        if (!isLocalPlayer || !Application.isFocused) return;
-        base.OnStartLocalPlayer();
-        playerCamera = transform.Find("PlayerCamera").gameObject;
-        playerInput = GetComponent<PlayerInput>();
-        _rb = gameObject.GetComponent<Rigidbody>();
         sun = GameObject.Find("Sun");
-        playerCamera.SetActive(true);
-        playerInput.enabled = true;
+        playerCamera = transform.Find("PlayerCamera").gameObject;
+        _rb = gameObject.GetComponent<Rigidbody>();
+        playerInput = GetComponent<PlayerInput>();
         lookAction = playerInput.actions["Player/Look"];
         moveAction = playerInput.actions["Player/Move"];
+        
+    }
+    public override void OnStartLocalPlayer()
+    {
+        base.OnStartLocalPlayer();
+        playerCamera.SetActive(true);
+        playerInput.enabled = true;
         moveAction.Enable();
     }
     public override void OnStopLocalPlayer()
     {
-        if (!isLocalPlayer || !Application.isFocused) return;
         base.OnStopLocalPlayer();
         playerCamera.SetActive(false);
         playerInput.enabled = false;
@@ -53,14 +56,14 @@ public class PlayerNetworkScript : NetworkBehaviour
     [Client]
     void LateUpdate()
     {
-        if (!isLocalPlayer || !Application.isFocused) return;
+        if(!isLocalPlayer) return;
         ShadowDetection();
         CameraRotation();
     }
     [Client]
-    private void FixedUpdate()
+    private void Update()
     {
-        if (!isLocalPlayer || !Application.isFocused) return;
+        if(!isLocalPlayer) return;
         PlayerMovement();
         //Debug.Log(moveAction.ReadValue<Vector2>());
     }
