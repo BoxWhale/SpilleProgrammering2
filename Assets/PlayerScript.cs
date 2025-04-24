@@ -74,11 +74,11 @@ public class PlayerScript : MonoBehaviour
     void PlayerMovement()
     {
         movement = moveAction.ReadValue<Vector2>();
-        Vector3 VerticalVelocity = new Vector3(0, _rb.linearVelocity.y, 0);
-        Vector3 HorizontalVelocity = new Vector3(movement.y, 0, -movement.x)*speed;
+        Vector3 verticalVelocity = new Vector3(0, _rb.linearVelocity.y, 0);
+        Vector3 horizontalVelocity = new Vector3(movement.y, 0, -movement.x)*speed;
         
-        Vector3 TargetVelocity = VerticalVelocity + transform.TransformDirection(HorizontalVelocity);
-        _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, TargetVelocity, acceleration*Time.deltaTime);
+        Vector3 targetVelocity = verticalVelocity + transform.TransformDirection(horizontalVelocity);
+        _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, acceleration*Time.deltaTime);
     }
 
     void ShadowDetection()
