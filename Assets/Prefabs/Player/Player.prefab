@@ -16,7 +16,9 @@ GameObject:
   - component: {fileID: 1085332976373625283}
   - component: {fileID: 4818278966241667655}
   - component: {fileID: 8352341099254600749}
-  - component: {fileID: 738110527027054735}
+  - component: {fileID: 8203190268096409102}
+  - component: {fileID: 8640173880261327345}
+  - component: {fileID: 8703412603431942634}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -499,7 +501,7 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &738110527027054735
+--- !u!114 &8203190268096409102
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -508,9 +510,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4133203170983271813}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4e2728f56e552b429af1640ec7028a1, type: 3}
+  m_Script: {fileID: 11500000, guid: 88c507b3802867e4cae7225b3b8685c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  syncDirection: 0
+  syncMode: 0
+  syncInterval: 0
   speed: 5
   acceleration: 10
   mouseSensitivity: 10
@@ -520,7 +525,7 @@ MonoBehaviour:
     m_Name: Look
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: eab5b0e8-b47e-486a-b637-79460678d041
+    m_Id: 837347a6-8955-44a2-bf71-5b7125ef4fc4
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -530,3 +535,54 @@ MonoBehaviour:
   viewOffset: 0
   verticalClamp: {x: -0.3, y: 3}
   sun: {fileID: 0}
+--- !u!114 &8640173880261327345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4133203170983271813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ff3ba0becae47b8b9381191598957c8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  syncDirection: 1
+  syncMode: 0
+  syncInterval: 0
+  target: {fileID: 8798665001792581248}
+  syncPosition: 1
+  syncRotation: 1
+  syncScale: 1
+  onlySyncOnChange: 1
+  compressRotation: 1
+  interpolatePosition: 1
+  interpolateRotation: 1
+  interpolateScale: 1
+  coordinateSpace: 0
+  timelineOffset: 1
+  showGizmos: 0
+  showOverlay: 0
+  overlayColor: {r: 0, g: 0, b: 0, a: 0.5}
+  onlySyncOnChangeCorrectionMultiplier: 2
+  useFixedUpdate: 0
+  rotationSensitivity: 0.01
+  positionPrecision: 0.01
+  scalePrecision: 0.01
+--- !u!114 &8703412603431942634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4133203170983271813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b91ecbcc199f4492b9a91e820070131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneId: 0
+  _assetId: 596946133
+  serverOnly: 0
+  visibility: 0
+  hasSpawned: 0
