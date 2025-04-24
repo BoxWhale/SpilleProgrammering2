@@ -72,16 +72,23 @@ public class PlayerNetworkScript : NetworkBehaviour
         float y = r * Mathf.Cos(theta);
         float z = -(r * Mathf.Sin(theta) * Mathf.Sin(phi));
             
-
         playerCamera.transform.position = transform.position + new Vector3(x, y, z);
         playerCamera.transform.LookAt(transform.position + Vector3.up * viewOffset);
     }
 
+    [Client]
     void PlayerMovement()
     {
         movement = moveAction.ReadValue<Vector2>();
+        
+        CmdMove(movement);
+    }
+
+    [Command]
+    void CmdMove(Vector2 moveInput)
+    {
         Vector3 verticalVelocity = new Vector3(0, _rb.linearVelocity.y, 0);
-        Vector3 horizontalVelocity = new Vector3(movement.y, 0, -movement.x)*speed;
+        Vector3 horizontalVelocity = new Vector3(moveInput.y, 0, -moveInput.x)*speed;
         
         Vector3 targetVelocity = verticalVelocity + transform.TransformDirection(horizontalVelocity);
         _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, acceleration*Time.deltaTime);
@@ -92,12 +99,10 @@ public class PlayerNetworkScript : NetworkBehaviour
         Ray ray = new Ray(transform.position-Vector3.up*transform.localScale.y/2, sun.transform.rotation*Vector3.back*100f);
         if (Physics.Raycast(ray, out RaycastHit hit, 100, LayerMask.GetMask("Shadow")))
         {
-            //In shadow
             Debug.DrawRay(ray.origin, ray.direction*1000, Color.green);
         }
         else
         {
-            //Outside shadow
             Debug.DrawRay(ray.origin, ray.direction*1000, Color.red);
         }
         
