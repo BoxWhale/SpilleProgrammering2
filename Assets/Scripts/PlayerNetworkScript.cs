@@ -53,7 +53,6 @@ public class PlayerNetworkScript : NetworkBehaviour
         moveAction.Disable();
     }
     
-    [Client]
     void LateUpdate()
     {
         if(!isLocalPlayer) return;
@@ -68,6 +67,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         //Debug.Log(moveAction.ReadValue<Vector2>());
     }
 
+    [Client]
     void CameraRotation()
     {
         Vector2 look = lookAction.ReadValue<Vector2>();
@@ -97,6 +97,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, acceleration*Time.deltaTime);
     }
 
+    [Server]
     void ShadowDetection()
     {
         Ray ray = new Ray(transform.position-Vector3.up*transform.localScale.y/2, sun.transform.rotation*Vector3.back*100f);
