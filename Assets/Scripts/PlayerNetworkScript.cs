@@ -86,19 +86,12 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerCamera.transform.LookAt(transform.position + Vector3.up * viewOffset);
     }
 
-    [Client]
     void PlayerMovement()
     {
         movement = moveAction.ReadValue<Vector2>();
         
-        CmdMove(movement);
-    }
-
-    [Command]
-    void CmdMove(Vector2 moveInput)
-    {
         Vector3 verticalVelocity = new Vector3(0, _rb.linearVelocity.y, 0);
-        Vector3 horizontalVelocity = new Vector3(moveInput.y, 0, -moveInput.x)*speed;
+        Vector3 horizontalVelocity = new Vector3(movement.y, 0, -movement.x)*speed;
         
         Vector3 targetVelocity = verticalVelocity + transform.TransformDirection(horizontalVelocity);
         _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, acceleration*Time.deltaTime);
