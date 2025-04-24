@@ -12,6 +12,7 @@ public class PlayerNetworkScript : NetworkBehaviour
     public float acceleration;
     public float mouseSensitivity;
     public float yMouseOffsetSensitivityFactor;
+    public GameObject playerCamera;
     
     private PlayerInput playerInput;
     
@@ -30,10 +31,12 @@ public class PlayerNetworkScript : NetworkBehaviour
     private void OnEnable()
     {
         sun = GameObject.Find("Sun");
+        playerCamera = transform.Find("PlayerCamera").gameObject;
         _rb = gameObject.GetComponent<Rigidbody>();
         playerInput = GetComponent<PlayerInput>();
         lookAction = playerInput.actions["Player/Look"];
         moveAction = playerInput.actions["Player/Move"];
+        
     }
     [Client]
     private void OnDisable()
