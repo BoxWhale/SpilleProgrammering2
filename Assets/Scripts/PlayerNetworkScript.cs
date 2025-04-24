@@ -55,9 +55,8 @@ public class PlayerNetworkScript : NetworkBehaviour
     
     void LateUpdate()
     {
-        if(!isLocalPlayer) return;
-        ShadowDetection();
-        CameraRotation();
+        if (!isLocalPlayer) ShadowDetection();
+        else CameraRotation();
     }
     [Client]
     private void Update()
