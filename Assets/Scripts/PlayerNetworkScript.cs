@@ -44,6 +44,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerCamera.SetActive(true);
         playerInput.enabled = true;
         moveAction.Enable();
+        lookAction.Enable();
     }
     public override void OnStopLocalPlayer()
     {
@@ -51,12 +52,13 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerCamera.SetActive(false);
         playerInput.enabled = false;
         moveAction.Disable();
+        lookAction.Disable();
     }
     
     void LateUpdate()
     {
-        if (!isLocalPlayer) ShadowDetection();
-        else CameraRotation();
+        if (isServer) ShadowDetection();
+        if (isLocalPlayer) CameraRotation();
     }
     [Client]
     private void Update()
@@ -85,6 +87,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerCamera.transform.LookAt(transform.position + Vector3.up * viewOffset);
     }
 
+    [Client]
     void PlayerMovement()
     {
         movement = moveAction.ReadValue<Vector2>();
@@ -99,6 +102,7 @@ public class PlayerNetworkScript : NetworkBehaviour
     [Server]
     void ShadowDetection()
     {
+        if (sun == null) return;
         Ray ray = new Ray(transform.position-Vector3.up*transform.localScale.y/2, sun.transform.rotation*Vector3.back*100f);
         if (Physics.Raycast(ray, out RaycastHit hit, 100, LayerMask.GetMask("Shadow")))
         {
