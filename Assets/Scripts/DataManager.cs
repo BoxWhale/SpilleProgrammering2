@@ -39,6 +39,20 @@ public class DataManager : MonoBehaviour
         return pd;
     }
 
+    public bool PlayerDataExists(string username)
+    {
+        if (_cache.ContainsKey(username))
+            return true;
+
+        var pd = _db.Find<PlayerData>(username);
+        if (pd != null)
+        {
+            _cache[username] = pd;
+            return true;
+        }
+        return false;
+    }
+
     public void SavePlayerData(PlayerData data, bool evictFromCache = false)
     {
         _db.InsertOrReplace(data);
