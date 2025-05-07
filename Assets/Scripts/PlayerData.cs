@@ -3,15 +3,15 @@ using SQLite;
 [Table("players")]
 public class PlayerData
 {
-    [PrimaryKey]
+    [PrimaryKey, Unique, NotNull]
     public string username { get; set; }
     public int stage { get; set; }
 
     public PlayerData() { }
 
-    public PlayerData(string id)
+    public PlayerData(string username)
     {
-        username = id;
+        this.username = username;
         stage = 1;
     }
 }

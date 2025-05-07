@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using SQLite;
 using UnityEngine;
@@ -7,6 +8,7 @@ public class DataManager : MonoBehaviour
     public static DataManager Instance { get; private set; }
 
     SQLiteConnection _db;
+    readonly Dictionary<string, PlayerData> _cache = new();
 
     void Awake()
     {
@@ -25,7 +27,10 @@ public class DataManager : MonoBehaviour
 
     public PlayerData GetPlayerData(string username)
     {
-        var pd = _db.Find<PlayerData>(username);
+        if (_cache.TryGetValue(username, out var pd))
+            return pd;
+
+        pd = _db.Find<PlayerData>(username);
         if (pd == null)
         {
             pd = new PlayerData(username);
@@ -34,13 +39,23 @@ public class DataManager : MonoBehaviour
         return pd;
     }
 
-    public void SavePlayerData(PlayerData data)
+    public void SavePlayerData(PlayerData data, bool evictFromCache = false)
     {
         _db.InsertOrReplace(data);
+        if (evictFromCache)
+            _cache.Remove(data.username);
+    }
+
+    public void SaveAllAndClearCache()
+    {
+        foreach (var pd in _cache.Values)
+            _db.InsertOrReplace(pd);
+        _cache.Clear();
     }
 
     void OnDestroy()
     {
+        SaveAllAndClearCache();
         _db?.Close();
     }
 }
