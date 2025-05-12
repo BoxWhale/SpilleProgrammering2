@@ -8,6 +8,9 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
+    // Define custom message types
+    public struct ConnectMessage : NetworkMessage { }
+    public struct DisconnectMessage : NetworkMessage { }
     private NetworkManager netManager;
     private PlayerData playerData;
     public int defaultPort = 7777;
@@ -150,6 +153,7 @@ public class MenuScript : MonoBehaviour
         ushort port;
         IPAddress address;
         var transport = Transport.active as TelepathyTransport;
+
         if (ushort.TryParse(portConnect.text, out port))
         {
             if (transport != null)
@@ -162,10 +166,23 @@ public class MenuScript : MonoBehaviour
             Debug.LogError("Current port is not valid");
             return;
         }
+
         if (IPAddress.TryParse(addressConnect.text, out address))
         {
             netManager.networkAddress = address.ToString();
             netManager.StartClient();
+
+            // Add connection status callbacks
+            NetworkClient.RegisterHandler<ConnectMessage>(msg =>
+            {
+                Debug.Log("Successfully connected to the host.");
+                OnSceneChange();
+            });
+
+            NetworkClient.RegisterHandler<DisconnectMessage>(msg =>
+            {
+                Debug.LogError("Failed to connect to the host.");
+            });
         }
         else
         {
