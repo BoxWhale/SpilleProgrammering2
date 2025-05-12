@@ -9,6 +9,12 @@ using UnityEngine.SceneManagement;
 public class MenuScript : MonoBehaviour
 {
     // Define custom message types
+    public struct SceneRequestMessage : NetworkMessage { }
+    public struct SceneResponseMessage : NetworkMessage
+    {
+        public string sceneName;
+    }
+    public struct HostMessage : NetworkMessage { }
     public struct ConnectMessage : NetworkMessage { }
     public struct DisconnectMessage : NetworkMessage { }
     private NetworkManager netManager;
@@ -30,7 +36,7 @@ public class MenuScript : MonoBehaviour
 
     [Header("Scene Settings")] 
     public int StageID = 1;
-
+    public string hostSceneName = "";
     [SerializeField]private Scene _stageName;
     
     private void Start()
@@ -43,6 +49,12 @@ public class MenuScript : MonoBehaviour
         MainWindow.blocksRaycasts = true;
         PlayWindow.alpha = 0;
         PlayWindow.blocksRaycasts = false;
+        NetworkClient.RegisterHandler<SceneResponseMessage>(msg =>
+        {
+            Debug.Log($"Received scene name from host: {msg.sceneName}");
+            SceneLoader.LoadLevel(msg.sceneName);
+            SceneLoader.ShowLoadingScreen();
+        });
     }
     
 
@@ -51,13 +63,7 @@ public class MenuScript : MonoBehaviour
     {
         //playerData = new PlayerData(usernameInput.GetComponent<TMP_InputField>().text);
         Debug.Log(usernameInput.GetComponent<TMP_Text>().text);
-
-        if (!SceneManager.GetSceneByName("SampleScene").isLoaded)
-        {
-            SceneManager.LoadScene("SampleScene", LoadSceneMode.Additive);
-        }
-
-        StartCoroutine(CheckSceneLoaded("SampleScene"));
+        hostSceneName = SceneManager.GetSceneByBuildIndex(StageID).name;
         OnWindowSwap();
     }
 
@@ -139,7 +145,17 @@ public class MenuScript : MonoBehaviour
         if (SceneManager.GetActiveScene().name != "MainMenu")
         {
             netManager.StartHost();
-            OnSceneChange();
+            NetworkClient.RegisterHandler<HostMessage>(msg =>
+            {
+                Debug.Log("Host started successfully.");
+                if (!SceneManager.GetSceneByName(hostSceneName).isLoaded)
+                {
+                    SceneManager.LoadScene(hostSceneName, LoadSceneMode.Additive);
+                }
+
+                StartCoroutine(CheckSceneLoaded(hostSceneName));
+                OnSceneChange();
+            });
             Debug.Log("Hosting started in the loaded scene.");
         }
         else
@@ -169,25 +185,77 @@ public class MenuScript : MonoBehaviour
 
         if (IPAddress.TryParse(addressConnect.text, out address))
         {
-            netManager.networkAddress = address.ToString();
-            netManager.StartClient();
-
-            // Add connection status callbacks
-            NetworkClient.RegisterHandler<ConnectMessage>(msg =>
+            if (IsHostReachable(address, port))
             {
-                Debug.Log("Successfully connected to the host.");
-                OnSceneChange();
-            });
-
-            NetworkClient.RegisterHandler<DisconnectMessage>(msg =>
+                Debug.Log($"Host is reachable at {address}:{port}");
+                netManager.networkAddress = address.ToString();
+                netManager.StartClient();
+                            
+                // Add connection status callbacks
+                NetworkClient.RegisterHandler<ConnectMessage>(msg =>
+                {
+                    Debug.Log("Successfully connected to the host.");
+                    RequestSceneFromHost();
+                    NetworkClient.RegisterHandler<SceneResponseMessage>(response =>
+                    {
+                        StartCoroutine(CheckSceneLoaded(response.sceneName));
+                    });
+                    OnSceneChange();
+                });
+            }
+            else
             {
-                Debug.LogError("Failed to connect to the host.");
-            });
+                Debug.LogError($"Host is not reachable at {address}:{port}");
+                NetworkClient.RegisterHandler<DisconnectMessage>(msg =>
+                {
+                    Debug.LogError("Failed to connect to the host.");
+                });
+                return;
+            }
         }
         else
         {
             Debug.LogError("Current address is not valid");
+            NetworkClient.RegisterHandler<DisconnectMessage>(msg =>
+            {
+                Debug.LogError("Failed to connect to the host.");
+            });
             return;
         }
+        
+    }
+    private bool IsHostReachable(IPAddress ipAddress, int port)
+    {
+        try
+        {
+            using (var client = new System.Net.Sockets.TcpClient())
+            {
+                var result = client.BeginConnect(ipAddress, port, null, null);
+                var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromSeconds(2));
+                if (!success)
+                    return false;
+
+                client.EndConnect(result);
+                return true;
+            }
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    [Client]
+    public void RequestSceneFromHost()
+    {
+        NetworkClient.Send(new SceneRequestMessage());
+
+        NetworkClient.RegisterHandler<SceneResponseMessage>(msg =>
+        {
+            Debug.Log($"Received scene name from host: {msg.sceneName}");
+            if (!SceneManager.GetSceneByName(msg.sceneName).isLoaded)
+            {
+                SceneManager.LoadScene(msg.sceneName, LoadSceneMode.Additive);
+            }
+        });
     }
 }

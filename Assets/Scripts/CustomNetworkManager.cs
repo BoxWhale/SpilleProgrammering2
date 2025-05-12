@@ -4,12 +4,22 @@ using UnityEngine.SceneManagement;
 
 public class CustomNetworkManager : NetworkManager
 {
+    public struct SceneRequestMessage : NetworkMessage { }
+    public struct SceneResponseMessage : NetworkMessage
+    {
+        public string sceneName;
+    }
     public override void OnStartServer()
     {
         base.OnStartServer();
         if (DataManager.Instance == null)
             new GameObject("DatabaseManager")
                 .AddComponent<DataManager>();
+        NetworkServer.RegisterHandler<SceneRequestMessage>((conn,msg) =>
+        {
+            string currentScene = SceneManager.GetActiveScene().name;
+            conn.Send(new SceneResponseMessage { sceneName = currentScene });
+        });
     }
 
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
