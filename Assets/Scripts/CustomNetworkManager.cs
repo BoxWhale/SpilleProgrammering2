@@ -1,5 +1,6 @@
 using Mirror;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CustomNetworkManager : NetworkManager
 {
@@ -13,6 +14,11 @@ public class CustomNetworkManager : NetworkManager
 
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
+        if(SceneManager.GetActiveScene().name == "MainMenu")
+        {
+            Debug.LogWarning("Player spawn attempted in an invalid scene.");
+            return;
+        }
         base.OnServerAddPlayer(conn);
 
         string username = conn.connectionId.ToString();
