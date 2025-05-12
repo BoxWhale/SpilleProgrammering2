@@ -9,8 +9,8 @@ using UnityEngine.SceneManagement;
 public class MenuScript : MonoBehaviour
 {
     // Define custom message types
-    public struct SceneRequestMessage : NetworkMessage { }
-    public struct SceneResponseMessage : NetworkMessage
+    private struct SceneRequestMessage : NetworkMessage { }
+    private struct SceneResponseMessage : NetworkMessage
     {
         public string sceneName;
     }
@@ -35,11 +35,10 @@ public class MenuScript : MonoBehaviour
     public TMP_Text portHost;
 
     [Header("Scene Settings")] 
-    public int StageID = 1;
-    public string hostSceneName = "";
-    [SerializeField]private Scene _stageName;
+    public int levelID = 1;
+    public string hostSceneName = "SampleScene";
     
-    private void Start()
+     private void Start()
     {
         portConnect.text = defaultPort.ToString();
         addressConnect.text = "127.0.0.1";
@@ -49,48 +48,39 @@ public class MenuScript : MonoBehaviour
         MainWindow.blocksRaycasts = true;
         PlayWindow.alpha = 0;
         PlayWindow.blocksRaycasts = false;
+
+    }
+    
+
+
+     public void OnStart()
+    {
+        //playerData = new PlayerData(usernameInput.GetComponent<TMP_InputField>().text);
+        Debug.Log(usernameInput.GetComponent<TMP_Text>().text);
+        //hostSceneName = SceneManager.GetSceneByBuildIndex(StageID).name;
         NetworkClient.RegisterHandler<SceneResponseMessage>(msg =>
         {
             Debug.Log($"Received scene name from host: {msg.sceneName}");
             SceneLoader.LoadLevel(msg.sceneName);
             SceneLoader.ShowLoadingScreen();
         });
-    }
-    
-
-
-    public void OnStart()
-    {
-        //playerData = new PlayerData(usernameInput.GetComponent<TMP_InputField>().text);
-        Debug.Log(usernameInput.GetComponent<TMP_Text>().text);
-        hostSceneName = SceneManager.GetSceneByBuildIndex(StageID).name;
         OnWindowSwap();
+        
     }
 
-    private IEnumerator CheckSceneLoaded(string sceneName)
-    {
-        Scene scene = SceneManager.GetSceneByName(sceneName);
-        while (!scene.isLoaded)
-        {
-            yield return null; // Wait for the next frame
-            scene = SceneManager.GetSceneByName(sceneName);
-        }
 
-        _stageName = scene;
-        Debug.Log($"Scene '{_stageName.name}' is successfully loaded.");
-    }
 
-    public void OnExit()
+     public void OnExit()
     {
         Application.Quit();
     }
 
-    public void OnReturn()
+     public void OnReturn()
     {
         OnWindowSwap();
     }
 
-    private void OnWindowSwap()
+     private void OnWindowSwap()
     {
         if (MainWindow.alpha == 1 && PlayWindow.alpha == 0)
         {
@@ -115,7 +105,7 @@ public class MenuScript : MonoBehaviour
         }
     }
 
-    private void OnSceneChange()
+     private void OnSceneChange()
     {
         MainWindow.alpha = 0;
         MainWindow.blocksRaycasts = false;
@@ -123,9 +113,10 @@ public class MenuScript : MonoBehaviour
         PlayWindow.blocksRaycasts = false; 
     }
 
-    public void OnHost()
+     public void OnHost()
     {
         ushort port;
+        // Check if the port is valid
         if (ushort.TryParse(portHost.text, out port))
         {
             var transport = Transport.active as TelepathyTransport;
@@ -141,30 +132,19 @@ public class MenuScript : MonoBehaviour
             }
             netManager.transport = transport;
         }
-        SceneManager.SetActiveScene(_stageName);
-        if (SceneManager.GetActiveScene().name != "MainMenu")
-        {
-            netManager.StartHost();
-            NetworkClient.RegisterHandler<HostMessage>(msg =>
-            {
-                Debug.Log("Host started successfully.");
-                if (!SceneManager.GetSceneByName(hostSceneName).isLoaded)
-                {
-                    SceneManager.LoadScene(hostSceneName, LoadSceneMode.Additive);
-                }
 
-                StartCoroutine(CheckSceneLoaded(hostSceneName));
-                OnSceneChange();
-            });
-            Debug.Log("Hosting started in the loaded scene.");
+        // Check if the scene is not the main menu
+        if (!SceneManager.GetSceneByName(hostSceneName).isLoaded)
+        {
+            SceneManager.LoadScene(hostSceneName, LoadSceneMode.Additive);
+            StartCoroutine(WaitForSceneAndHost(hostSceneName));
         }
         else
         {
-            Debug.LogError("No valid scene is loaded for hosting.");
+            StartCoroutine(WaitForSceneAndHost(hostSceneName));
         }
     }
-
-    public void OnConnect()
+     public void OnConnect()
     {
         ushort port;
         IPAddress address;
@@ -222,9 +202,39 @@ public class MenuScript : MonoBehaviour
             });
             return;
         }
-        
     }
-    private bool IsHostReachable(IPAddress ipAddress, int port)
+
+    private IEnumerator WaitForSceneAndHost(string sceneName)
+    {
+        yield return StartCoroutine(CheckSceneLoaded(sceneName));
+
+        if (SceneManager.GetActiveScene().name != "MainMenu")
+        {
+            netManager.StartHost();
+            NetworkClient.RegisterHandler<HostMessage>(msg =>
+            {
+                Debug.Log("Host started successfully.");
+            });
+            Debug.Log("Hosting started in the loaded scene.");
+            OnSceneChange();
+        }
+        else
+        {
+            Debug.LogError("No valid scene is loaded for hosting.");
+        }
+    }
+    private static IEnumerator CheckSceneLoaded(string sceneName)
+    {
+        Scene scene = SceneManager.GetSceneByName(sceneName);
+        while (!scene.isLoaded)
+        {
+            yield return null; // Wait for the next frame
+            scene = SceneManager.GetSceneByName(sceneName);
+        }
+        Debug.Log($"Scene '{sceneName}' is successfully loaded.");
+        SceneManager.SetActiveScene(scene);
+    }
+    private static bool IsHostReachable(IPAddress ipAddress, int port)
     {
         try
         {
@@ -244,8 +254,8 @@ public class MenuScript : MonoBehaviour
             return false;
         }
     }
-    [Client]
-    public void RequestSceneFromHost()
+
+     private static void RequestSceneFromHost()
     {
         NetworkClient.Send(new SceneRequestMessage());
 
