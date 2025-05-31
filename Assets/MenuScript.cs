@@ -187,7 +187,7 @@ public class MenuScript : MonoBehaviour
 
         // Validate connection parameters
         var transport = Transport.active as TelepathyTransport;
-        if (ushort.TryParse(portHost.text, out ushort port))
+        if (ushort.TryParse(portConnect.text, out ushort port))
         {
             if (transport != null)
             {
