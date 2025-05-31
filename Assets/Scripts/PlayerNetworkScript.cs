@@ -68,6 +68,12 @@ public class PlayerNetworkScript : NetworkBehaviour
         }
         
     }
+    public override void OnStartClient()
+    {
+        base.OnStartClient();
+        CreateNameDisplay();
+        
+    }
     public override void OnStopLocalPlayer()
     {
         base.OnStopLocalPlayer();
@@ -76,7 +82,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         moveAction.Disable();
         lookAction.Disable();
         leaveAction.Disable();
-        
+
     }
     
     void ChangeName(string oldName, string newName)
