@@ -298,6 +298,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dcd4481749eb0ba469c3124c852b06a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  netManager: {fileID: 0}
   defaultPort: 7777
   MainWindow: {fileID: 300340708}
   PlayWindow: {fileID: 1239334711}
