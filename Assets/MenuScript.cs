@@ -74,6 +74,12 @@ public class MenuScript : MonoBehaviour
         {
             _pd = _dataManager.GetPlayerData(username);
             PlayerPrefs.SetString("PlayerName", _pd.username);
+            Debug.Log($"Player {_pd.username} loaded with Scene={_pd.SceneNumber}, Level={_pd.LevelNumber}");
+        }
+        else
+        {
+            Debug.LogWarning("No username provided. Using default values.");
+            _pd = new PlayerData("DefaultPlayer");
         }
         OnWindowSwap();
     }
@@ -141,8 +147,26 @@ public class MenuScript : MonoBehaviour
             }
         }
 
-        // Set the online scene before starting the host
-        netManager.onlineScene = (_pd.SceneNumber+1).ToString();
+        // Make sure we have player data loaded
+        if (_pd == null && PlayerPrefs.HasKey("PlayerName"))
+        {
+            string username = PlayerPrefs.GetString("PlayerName");
+            _pd = _dataManager.GetPlayerData(username);
+            Debug.Log($"Loaded player data for {username} before hosting");
+        }
+
+        // Set the online scene based on player's saved progress
+        if (_pd != null)
+        {
+            netManager.onlineScene = _pd.SceneNumber.ToString();
+            Debug.Log($"Setting online scene to {_pd.SceneNumber} based on saved player data");
+        }
+        else
+        {
+            netManager.onlineScene = "1"; // Default to scene 1
+            Debug.Log("No player data found. Using default scene 1");
+        }
+
         Debug.Log("Starting host with scene: " + netManager.onlineScene);
         netManager.StartHost();
     }
@@ -203,6 +227,12 @@ public class MenuScript : MonoBehaviour
     private void OnClientDisconnected()
     {
         Debug.Log("Disconnected from server");
+        
+        if (_dataManager != null)
+        {
+            _dataManager.SaveAllAndClearCache();
+            Debug.Log("Player data saved to disk on disconnect");
+        }
 
         if (NetworkServer.active)
         {
@@ -218,7 +248,7 @@ public class MenuScript : MonoBehaviour
         {
             SceneManager.LoadScene(netManager.offlineScene);
         }
-
+        
         MainWindow.alpha = 1;
         MainWindow.blocksRaycasts = true;
         PlayWindow.alpha = 0;
