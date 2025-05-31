@@ -240,6 +240,8 @@ public class MenuScript : MonoBehaviour
             // Start client
             Debug.Log($"Connecting to {address}:{port}");
             netManager.StartClient();
+            
+            HideAllWindows();
         }
 
     private void OnClientConnected()
