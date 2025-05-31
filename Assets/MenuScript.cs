@@ -207,6 +207,8 @@ public class MenuScript : MonoBehaviour
 
         // Allow both IP addresses and hostnames
         string address = addressConnect.text.Trim();
+        // Remove invisible Unicode characters (like zero-width space)
+        address = address.Replace("\u200B", "").Replace("\u200C", "").Replace("\u200D", "").Replace("\uFEFF", "");
         // Validate IP address format
         if (!IPAddress.TryParse(address, out _) && !address.Equals("localhost", StringComparison.OrdinalIgnoreCase))
         {
