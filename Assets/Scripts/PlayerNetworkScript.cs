@@ -12,6 +12,7 @@ public class PlayerNetworkScript : NetworkBehaviour
     public float acceleration;
     public float mouseSensitivity;
     public float yMouseOffsetSensitivityFactor;
+    public bool toggleMouseVisibility;
     public GameObject playerCamera;
     
     private PlayerInput playerInput;
@@ -22,6 +23,8 @@ public class PlayerNetworkScript : NetworkBehaviour
     public InputAction lookAction;
     public Vector2 look;
 
+    private InputAction leaveAction;
+    
     public Vector3 offset;
     public float viewOffset;
     [Tooltip("x = min\ny = max")]
@@ -36,6 +39,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerInput = GetComponent<PlayerInput>();
         lookAction = playerInput.actions["Player/Look"];
         moveAction = playerInput.actions["Player/Move"];
+        leaveAction = playerInput.actions["Player/Leave"];
         
     }
     public override void OnStartLocalPlayer()
@@ -45,6 +49,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerInput.enabled = true;
         moveAction.Enable();
         lookAction.Enable();
+        leaveAction.Enable();
     }
     public override void OnStopLocalPlayer()
     {
@@ -53,6 +58,8 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerInput.enabled = false;
         moveAction.Disable();
         lookAction.Disable();
+        leaveAction.Disable();
+        
     }
     
     void LateUpdate()
@@ -65,7 +72,15 @@ public class PlayerNetworkScript : NetworkBehaviour
     {
         if(!isLocalPlayer) return;
         PlayerMovement();
+        // Uncomment for debugging movement input
         //Debug.Log(moveAction.ReadValue<Vector2>());
+        
+        //Return to main menu on Escape key press
+        if(leaveAction.triggered) 
+        {
+            
+
+        }
     }
 
     [Client]
@@ -113,5 +128,13 @@ public class PlayerNetworkScript : NetworkBehaviour
             Debug.DrawRay(ray.origin, ray.direction*1000, Color.red);
         }
         
+    }
+
+    void LeaveGame()
+    {
+        if (NetworkServer.active && NetworkClient.active) // Host (server + client)
+            NetworkManager.singleton.StopHost();
+        else if (NetworkClient.active) // Client only
+            NetworkManager.singleton.StopClient();
     }
 }

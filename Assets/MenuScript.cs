@@ -47,7 +47,6 @@ public class MenuScript : MonoBehaviour
         }
         
         // Configure scenes
-        netManager.onlineScene = onlineSceneName;
         netManager.offlineScene = SceneManager.GetActiveScene().name;
         Debug.Log($"NetworkManager configured - Online: {onlineSceneName}, Offline: {netManager.offlineScene}");
     }
@@ -82,6 +81,11 @@ public class MenuScript : MonoBehaviour
         {
             PlayerData data = new PlayerData(username);
         }
+        //load online scene attached to PlayerData
+        
+        netManager.onlineScene = onlineSceneName;
+        
+        
         OnWindowSwap();
     }
 
@@ -182,12 +186,22 @@ public class MenuScript : MonoBehaviour
         }
 
         // Validate connection parameters
-        if (!ushort.TryParse(portConnect.text, out ushort port) ||
-            !IPAddress.TryParse(addressConnect.text, out IPAddress address))
+        if (!ushort.TryParse(portConnect.text, out ushort port))
         {
-            Debug.LogError("Invalid connection parameters");
+            Debug.LogError("Invalid port number");
             return;
         }
+
+        // Allow both IP addresses and hostnames
+        string address = addressConnect.text.Trim();
+        if (string.IsNullOrEmpty(address))
+        {
+            Debug.LogError("Address cannot be empty");
+            return;
+        }
+
+        // No need to validate the address format - Unity's NetworkManager can handle
+        // both IP addresses and hostnames
 
         // Configure network settings
         netManager.networkAddress = address.ToString();
