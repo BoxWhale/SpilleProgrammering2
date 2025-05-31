@@ -186,31 +186,36 @@ public class MenuScript : MonoBehaviour
         }
 
         // Validate connection parameters
-        if (ushort.TryParse(portConnect.text, out ushort port))
+        var transport = Transport.active as TelepathyTransport;
+        if (ushort.TryParse(portHost.text, out ushort port))
         {
-            Debug.LogError("Invalid port number");
-            return;
+            if (transport != null)
+            {
+                transport.port = port;
+                Debug.Log($"Connect port set to {port}");
+            }
+        }
+        else
+        {
+            Debug.Log("Invalid port number");
         }
 
         // Allow both IP addresses and hostnames
         string address = addressConnect.text.Trim();
-        if (string.IsNullOrEmpty(address))
+        // Validate IP address format
+        if (!IPAddress.TryParse(address, out _) && !address.Equals("localhost", StringComparison.OrdinalIgnoreCase))
         {
-            Debug.LogError("Address cannot be empty");
-            return;
+            // Not a valid IP address format, but could be a hostname
+            if (address.Contains(" ") || address.Contains(":") || !address.Contains("."))
+            {
+                Debug.LogWarning("Address doesn't appear to be a valid IP address or hostname");
+                // Continue anyway as it might be a hostname
+            }
         }
-
-        // No need to validate the address format - Unity's NetworkManager can handle
-        // both IP addresses and hostnames
+        
 
         // Configure network settings
         netManager.networkAddress = address.ToString();
-
-        var transport = Transport.active as TelepathyTransport;
-        if (transport != null)
-        {
-            transport.port = port;
-        }
 
         // Ensure scene is set
         netManager.onlineScene = onlineSceneName;
