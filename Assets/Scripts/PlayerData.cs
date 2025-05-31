@@ -7,6 +7,8 @@ public class PlayerData
     public string username { get; set; }
     public int stage { get; set; }
 
+    #region BitPacking Stage_Variable
+
     [Ignore] // Scene number is stored in the upper 16 bits of stage
     public int SceneNumber
     {
@@ -20,6 +22,8 @@ public class PlayerData
         get => stage & 0xFFFF;
         set => stage = (SceneNumber << 16) | (value & 0xFFFF);
     }
+
+    #endregion
 
     public PlayerData() { }
 
