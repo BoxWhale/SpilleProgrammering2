@@ -65,7 +65,6 @@ public class PlayerNetworkScript : NetworkBehaviour
         if (PlayerPrefs.HasKey("PlayerName"))
         {
             CmdSetPlayerName(PlayerPrefs.GetString("PlayerName"));
-            CreateNameDisplay();
         }
         
     }
@@ -90,6 +89,13 @@ public class PlayerNetworkScript : NetworkBehaviour
     }
     private void CreateNameDisplay()
     {
+        if (playerNameText != null)
+        {
+            // If the name display already exists, just update the text
+            playerNameText.text = playerName;
+            return;
+        }
+        
         // Create a new GameObject as a child of the player
         GameObject nameDisplayObject = new GameObject("NameDisplay");
         nameDisplayObject.transform.SetParent(transform);
@@ -113,6 +119,12 @@ public class PlayerNetworkScript : NetworkBehaviour
     void CmdSetPlayerName(string name)
     {
         playerName = name;
+        RpcPlayerName();
+    }
+    [ClientRpc]
+    private void RpcPlayerName()
+    {
+        CreateNameDisplay();
     }
     
     void LateUpdate()

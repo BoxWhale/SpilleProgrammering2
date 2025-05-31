@@ -142,7 +142,7 @@ public class MenuScript : MonoBehaviour
         }
 
         // Set the online scene before starting the host
-        netManager.onlineScene = (_pd.SceneNumber).ToString();
+        netManager.onlineScene = (_pd.SceneNumber+1).ToString();
         Debug.Log("Starting host with scene: " + netManager.onlineScene);
         netManager.StartHost();
     }
@@ -191,7 +191,6 @@ public class MenuScript : MonoBehaviour
         // When connecting as a client, DO NOT set onlineScene
         // The host will control scene loading and synchronization
         Debug.Log($"Connecting to {address}:{port} - Scene will be determined by host");
-        
         netManager.StartClient();
     }
 
@@ -199,9 +198,6 @@ public class MenuScript : MonoBehaviour
     {
         Debug.Log("Successfully connected to server");
         HideAllWindows();
-        
-        // Don't manually load scenes here - Mirror's NetworkManager will handle scene changes
-        // The server will send the appropriate scene change to clients automatically
     }
 
     private void OnClientDisconnected()
