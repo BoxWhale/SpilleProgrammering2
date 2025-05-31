@@ -198,6 +198,11 @@ public class MenuScript : MonoBehaviour
         else
         {
             Debug.Log($"Invalid port number {portConnect.text}. Using default port {defaultPort}.");
+            port = (ushort)defaultPort;
+            if (transport != null)
+            {
+                transport.port = port;
+            }   
         }
 
         // Allow both IP addresses and hostnames
