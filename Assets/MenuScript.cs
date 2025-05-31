@@ -197,7 +197,7 @@ public class MenuScript : MonoBehaviour
         }
         else
         {
-            Debug.Log("Invalid port number");
+            Debug.Log($"Invalid port number {portConnect.text}. Using default port {defaultPort}.");
         }
 
         // Allow both IP addresses and hostnames
