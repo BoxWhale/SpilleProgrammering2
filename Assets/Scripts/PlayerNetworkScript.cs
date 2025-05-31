@@ -78,8 +78,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         //Return to main menu on Escape key press
         if(leaveAction.triggered) 
         {
-            
-
+            LeaveGame();
         }
     }
 
