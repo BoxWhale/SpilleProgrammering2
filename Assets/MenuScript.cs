@@ -16,12 +16,12 @@ public class MenuScript : MonoBehaviour
     public CanvasGroup PlayWindow;
 
     [Header("Input Fields for Main Menu")]
-    public TMP_Text usernameInput;
+    public TMP_InputField usernameInput;
 
     [Header("Input Fields for Play Menu")]
-    public TMP_Text addressConnect;
-    public TMP_Text portConnect;
-    public TMP_Text portHost;
+    public TMP_InputField addressConnect;
+    public TMP_InputField portConnect;
+    public TMP_InputField portHost;
 
     [Header("Scene Settings")]
     public string onlineSceneName = "SampleScene";

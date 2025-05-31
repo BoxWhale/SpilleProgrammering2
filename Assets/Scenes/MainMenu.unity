@@ -303,10 +303,10 @@ MonoBehaviour:
   defaultPort: 7777
   MainWindow: {fileID: 300340708}
   PlayWindow: {fileID: 1239334711}
-  usernameInput: {fileID: 259335632}
-  addressConnect: {fileID: 274600029}
-  portConnect: {fileID: 2011362328}
-  portHost: {fileID: 599107890}
+  usernameInput: {fileID: 896654526}
+  addressConnect: {fileID: 206422286}
+  portConnect: {fileID: 1688366953}
+  portHost: {fileID: 1887176712}
   onlineSceneName: SampleScene
 --- !u!114 &120648820
 MonoBehaviour:
@@ -3537,7 +3537,7 @@ GameObject:
   - component: {fileID: 1688366954}
   - component: {fileID: 1688366953}
   m_Layer: 5
-  m_Name: PortTG
+  m_Name: PortHostTG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
