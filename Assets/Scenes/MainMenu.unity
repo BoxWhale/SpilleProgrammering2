@@ -305,8 +305,7 @@ MonoBehaviour:
   addressConnect: {fileID: 274600029}
   portConnect: {fileID: 2011362328}
   portHost: {fileID: 599107890}
-  levelID: 1
-  hostSceneName: SampleScene
+  onlineSceneName: SampleScene
 --- !u!1 &206422284
 GameObject:
   m_ObjectHideFlags: 0
