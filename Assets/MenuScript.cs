@@ -243,9 +243,29 @@ public class MenuScript : MonoBehaviour
     {
         Debug.Log("Disconnected from server");
 
+        // If we're the host that stopped, ensure all clients are disconnected
+        if (NetworkServer.active)
+        {
+            NetworkServer.Shutdown();
+        }
+
+        // Make sure client is fully stopped if still connected
+        if (NetworkClient.isConnected)
+        {
+            NetworkClient.Disconnect();
+        }
+
+        // Return to offline scene if we're not already there
+        if (SceneManager.GetActiveScene().name != netManager.offlineScene)
+        {
+            SceneManager.LoadScene(netManager.offlineScene);
+        }
+
         // Show main menu again
         MainWindow.alpha = 1;
         MainWindow.blocksRaycasts = true;
+        PlayWindow.alpha = 0;
+        PlayWindow.blocksRaycasts = false;
     }
     #endregion
 }
