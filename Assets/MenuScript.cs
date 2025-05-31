@@ -175,72 +175,72 @@ public class MenuScript : MonoBehaviour
     }
 
     public void OnConnect()
-    {
-        // Check if NetworkManager is available
-        if (netManager == null)
         {
-            netManager = FindObjectOfType<NetworkManager>();
+            // Check if NetworkManager is available
             if (netManager == null)
             {
-                Debug.LogError("Cannot connect: NetworkManager not found!");
+                netManager = FindObjectOfType<NetworkManager>();
+                if (netManager == null)
+                {
+                    Debug.LogError("Cannot connect: NetworkManager not found!");
+                    return;
+                }
+            }
+        
+            // Get the KCP transport from NetworkManager
+            var kcpTransport = netManager.GetComponent<kcp2k.KcpTransport>();
+            if (kcpTransport == null)
+            {
+                Debug.LogError("KCP Transport not found on NetworkManager!");
                 return;
             }
-        }
-
-        // Validate connection parameters
-        var transport = Transport.active as TelepathyTransport;
-        if (ushort.TryParse(portConnect.text, out ushort port))
-        {
-            if (transport != null)
+        
+            // Validate and set port
+            if (ushort.TryParse(portConnect.text, out ushort port))
             {
-                transport.port = port;
+                kcpTransport.Port = port;
                 Debug.Log($"Connect port set to {port}");
             }
-        }
-        else
-        {
-            Debug.Log($"Invalid port number {portConnect.text}. Using default port {defaultPort}.");
-            port = (ushort)defaultPort;
-            if (transport != null)
+            else
             {
-                transport.port = port;
-            }   
-        }
-
-        // Allow both IP addresses and hostnames
-        string address = addressConnect.text.Trim();
-        // Remove invisible Unicode characters (like zero-width space)
-        address = address.Replace("\u200B", "").Replace("\u200C", "").Replace("\u200D", "").Replace("\uFEFF", "");
-        // Validate IP address format
-        if (!IPAddress.TryParse(address, out _) && !address.Equals("localhost", StringComparison.OrdinalIgnoreCase))
-        {
-            // Not a valid IP address format, but could be a hostname
-            if (address.Contains(" ") || address.Contains(":") || !address.Contains("."))
-            {
-                Debug.LogWarning("Address doesn't appear to be a valid IP address or hostname");
-                // Continue anyway as it might be a hostname
+                Debug.Log($"Invalid port number {portConnect.text}. Using default port {defaultPort}.");
+                port = (ushort)defaultPort;
+                kcpTransport.Port = port;
             }
-        }
         
-
-        // Configure network settings
-        netManager.networkAddress = address.ToString();
-
-        // Ensure scene is set
-        netManager.onlineScene = onlineSceneName;
-
-        // Unregister previous callbacks
-/*         NetworkClient.OnConnectedEvent -= OnClientConnected;
-        NetworkClient.OnDisconnectedEvent -= OnClientDisconnected; */
-
-        // Register new callbacks
-        NetworkClient.OnConnectedEvent += OnClientConnected;
-        NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
-
-        // Start client
-        Debug.Log($"Connecting to {address}:{port}");
-        netManager.StartClient();
-    }
+            // Allow both IP addresses and hostnames
+            string address = addressConnect.text.Trim();
+            // Remove invisible Unicode characters (like zero-width space)
+            address = address.Replace("\u200B", "").Replace("\u200C", "").Replace("\u200D", "").Replace("\uFEFF", "");
+            // Validate IP address format
+            if (!IPAddress.TryParse(address, out _) && !address.Equals("localhost", StringComparison.OrdinalIgnoreCase))
+            {
+                // Not a valid IP address format, but could be a hostname
+                if (address.Contains(" ") || address.Contains(":") || !address.Contains("."))
+                {
+                    Debug.LogWarning("Address doesn't appear to be a valid IP address or hostname");
+                    // Continue anyway as it might be a hostname
+                }
+            }
+        
+            // Configure network settings
+            netManager.networkAddress = address;
+        
+            // Ensure scene is set
+            netManager.onlineScene = onlineSceneName;
+        
+            // Unregister previous callbacks
+            NetworkClient.OnConnectedEvent -= OnClientConnected;
+            NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
+        
+            // Register new callbacks
+            NetworkClient.OnConnectedEvent += OnClientConnected;
+            NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
+        
+            // Start client
+            Debug.Log($"Connecting to {address}:{port}");
+            netManager.StartClient();
+        }
 
     private void OnClientConnected()
     {
