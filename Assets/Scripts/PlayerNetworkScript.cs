@@ -1,5 +1,6 @@
 using System;
 using Mirror;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor.Build;
 using UnityEngine;
@@ -7,29 +8,40 @@ using UnityEngine.InputSystem;
 
 public class PlayerNetworkScript : NetworkBehaviour
 {
+    [Header("References")]
     private Rigidbody _rb;
-    public float speed;
-    public float acceleration;
-    public float mouseSensitivity;
-    public float yMouseOffsetSensitivityFactor;
-    public bool toggleMouseVisibility;
-    public GameObject playerCamera;
+    [SerializeField] private GameObject playerCamera;
+    [SerializeField] private GameObject sun;
+    [SerializeField, SyncVar(hook = nameof(ChangeName))] public string playerName;
+    [SerializeField] private TextMeshPro playerNameText;
     
+    [Header("Movement")]
+    [SerializeField] [Tooltip("Player movement speed")] 
+    private float speed = 5f;
+    [SerializeField] [Tooltip("How quickly the player accelerates")]
+    private float acceleration = 10f;
+    [SerializeField] [HideInInspector]
+    private Vector2 movement;
+    
+    [Header("Camera")]
+    [SerializeField] [Tooltip("Mouse look sensitivity")]
+    private float mouseSensitivity = 3f;
+    [SerializeField] [Tooltip("Vertical look sensitivity multiplier")]
+    private float yMouseOffsetSensitivityFactor = 1f;
+    [SerializeField] [Tooltip("Camera position offset from player")]
+    private Vector3 offset = new Vector3(0, 2, -5);
+    [SerializeField] [Tooltip("Camera look target height offset")]
+    private float viewOffset = 1f;
+    [SerializeField] [Tooltip("x = min, y = max vertical look angle")]
+    private Vector2 verticalClamp = new Vector2(-30f, 60f);
+    [SerializeField] [HideInInspector]
+    private Vector2 look;
+    
+    [Header("Input")]
     private PlayerInput playerInput;
-    
     private InputAction moveAction;
-    public Vector2 movement;
-    
-    public InputAction lookAction;
-    public Vector2 look;
-
+    private InputAction lookAction;
     private InputAction leaveAction;
-    
-    public Vector3 offset;
-    public float viewOffset;
-    [Tooltip("x = min\ny = max")]
-    public Vector2 verticalClamp;
-    public GameObject sun;
     [Client]
     private void OnEnable()
     {
@@ -50,6 +62,12 @@ public class PlayerNetworkScript : NetworkBehaviour
         moveAction.Enable();
         lookAction.Enable();
         leaveAction.Enable();
+        if (PlayerPrefs.HasKey("PlayerName"))
+        {
+            CmdSetPlayerName(PlayerPrefs.GetString("PlayerName"));
+            CreateNameDisplay();
+        }
+        
     }
     public override void OnStopLocalPlayer()
     {
@@ -62,6 +80,41 @@ public class PlayerNetworkScript : NetworkBehaviour
         
     }
     
+    void ChangeName(string oldName, string newName)
+    {
+    
+        if (playerNameText != null)
+        {
+            playerNameText.text = newName;
+        }
+    }
+    private void CreateNameDisplay()
+    {
+        // Create a new GameObject as a child of the player
+        GameObject nameDisplayObject = new GameObject("NameDisplay");
+        nameDisplayObject.transform.SetParent(transform);
+        nameDisplayObject.transform.localPosition = Vector3.up * 1f;
+        nameDisplayObject.transform.localRotation = Quaternion.Euler(0,-90,0);
+        
+        // Add TextMeshPro component
+        playerNameText = nameDisplayObject.AddComponent<TextMeshPro>();
+        playerNameText.alignment = TextAlignmentOptions.Center;
+        playerNameText.fontSize = 3;
+        playerNameText.color = Color.white;
+    
+        // Set the current name if available
+        if (!string.IsNullOrEmpty(playerName))
+        {
+            playerNameText.text = playerName;
+        }
+    }
+    
+    [Command]
+    void CmdSetPlayerName(string name)
+    {
+        playerName = name;
+    }
+    
     void LateUpdate()
     {
         if (isServer) ShadowDetection();
@@ -72,13 +125,10 @@ public class PlayerNetworkScript : NetworkBehaviour
     {
         if(!isLocalPlayer) return;
         PlayerMovement();
-        // Uncomment for debugging movement input
-        //Debug.Log(moveAction.ReadValue<Vector2>());
         
-        //Return to main menu on Escape key press
-        if(leaveAction.triggered) 
+
+        if(leaveAction.triggered)
         {
-            
             LeaveGame();
         }
     }

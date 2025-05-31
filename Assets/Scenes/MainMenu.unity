@@ -307,7 +307,6 @@ MonoBehaviour:
   addressConnect: {fileID: 206422286}
   portConnect: {fileID: 1688366953}
   portHost: {fileID: 1887176712}
-  onlineSceneName: SampleScene
 --- !u!114 &120648820
 MonoBehaviour:
   m_ObjectHideFlags: 0
