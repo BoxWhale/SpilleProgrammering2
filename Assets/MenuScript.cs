@@ -119,10 +119,12 @@ public class MenuScript : MonoBehaviour
 
     private void HideAllWindows()
     {
+        Debug.Log("Hiding all windows");
         MainWindow.alpha = 0;
         MainWindow.blocksRaycasts = false;
         PlayWindow.alpha = 0;
         PlayWindow.blocksRaycasts = false;
+        
     }
 
     #endregion
