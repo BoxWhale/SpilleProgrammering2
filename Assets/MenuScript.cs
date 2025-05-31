@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
+    private DataManager _dataManager;
+    private PlayerData _pd;
     // Assign this in the Inspector
     [SerializeField] private NetworkManager netManager;
     public int defaultPort = 7777;
@@ -28,6 +30,7 @@ public class MenuScript : MonoBehaviour
 
     private void Awake()
     {
+        _dataManager = GetComponent<DataManager>();
         // Keep menu across scene changes
         DontDestroyOnLoad(gameObject);
 
@@ -83,7 +86,7 @@ public class MenuScript : MonoBehaviour
         string username = usernameInput.text;
         if (!string.IsNullOrEmpty(username))
         {
-            PlayerData data = new PlayerData(username);
+            _pd = _dataManager.GetPlayerData(username);
         }
         //load online scene attached to PlayerData
         
