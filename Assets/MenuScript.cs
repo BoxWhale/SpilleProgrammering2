@@ -186,7 +186,7 @@ public class MenuScript : MonoBehaviour
         }
 
         // Validate connection parameters
-        if (!ushort.TryParse(portConnect.text, out ushort port))
+        if (ushort.TryParse(portConnect.text, out ushort port))
         {
             Debug.LogError("Invalid port number");
             return;
