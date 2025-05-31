@@ -30,32 +30,36 @@ public class MenuScript : MonoBehaviour
     {
         // Keep menu across scene changes
         DontDestroyOnLoad(gameObject);
-        
+
         // Initialize UI (doesn't depend on NetworkManager)
         InitializeUI();
-        
+
         // Find NetworkManager if not assigned in inspector
         if (netManager == null)
         {
             netManager = FindObjectOfType<NetworkManager>();
-            
+
             if (netManager == null)
             {
                 Debug.LogError("NetworkManager not found! Add a NetworkManager to your scene.");
                 return;
             }
         }
-        
+
         // Configure scenes
         netManager.offlineScene = SceneManager.GetActiveScene().name;
         Debug.Log($"NetworkManager configured - Online: {onlineSceneName}, Offline: {netManager.offlineScene}");
+        
+        // Register new callbacks
+        CustomNetworkManager.OnClientConnectedEvent += OnClientConnected;
+        CustomNetworkManager.OnClientDisconnectedEvent += OnClientDisconnected;
     }
 
     private void OnDestroy()
     {
         // Clean up event subscriptions
-        NetworkClient.OnConnectedEvent -= OnClientConnected;
-        NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
+        CustomNetworkManager.OnClientConnectedEvent -= OnClientConnected;
+        CustomNetworkManager.OnClientDisconnectedEvent -= OnClientDisconnected;
     }
 
     private void InitializeUI()
@@ -158,13 +162,13 @@ public class MenuScript : MonoBehaviour
         // Ensure scene is set
         netManager.onlineScene = onlineSceneName;
 
-        // Unregister previous callbacks
+/*         // Unregister previous callbacks
         NetworkClient.OnConnectedEvent -= OnClientConnected;
         NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
 
         // Register new callbacks
         NetworkClient.OnConnectedEvent += OnClientConnected;
-        NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
+        NetworkClient.OnDisconnectedEvent += OnClientDisconnected; */
 
         // Start host
         Debug.Log("Starting host with scene: " + netManager.onlineScene);
@@ -229,13 +233,13 @@ public class MenuScript : MonoBehaviour
             // Ensure scene is set
             netManager.onlineScene = onlineSceneName;
         
-            // Unregister previous callbacks
+/*             // Unregister previous callbacks
             NetworkClient.OnConnectedEvent -= OnClientConnected;
             NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
         
             // Register new callbacks
             NetworkClient.OnConnectedEvent += OnClientConnected;
-            NetworkClient.OnDisconnectedEvent += OnClientDisconnected;
+            NetworkClient.OnDisconnectedEvent += OnClientDisconnected; */
         
             // Start client
             Debug.Log($"Connecting to {address}:{port}");

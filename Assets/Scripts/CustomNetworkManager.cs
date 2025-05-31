@@ -1,30 +1,24 @@
+using System;
 using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class CustomNetworkManager : NetworkManager
 {
-    public struct SceneRequestMessage : NetworkMessage { }
-    public struct SceneResponseMessage : NetworkMessage
-    {
-        public string sceneName;
-    }
+    public static event Action OnClientConnectedEvent;
+    public static event Action OnClientDisconnectedEvent;
+
     public override void OnStartServer()
     {
         base.OnStartServer();
         if (DataManager.Instance == null)
             new GameObject("DatabaseManager")
                 .AddComponent<DataManager>();
-        NetworkServer.RegisterHandler<SceneRequestMessage>((conn,msg) =>
-        {
-            string currentScene = SceneManager.GetActiveScene().name;
-            conn.Send(new SceneResponseMessage { sceneName = currentScene });
-        });
     }
 
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
-        if(SceneManager.GetActiveScene().name == "MainMenu")
+        if (SceneManager.GetActiveScene().name == "MainMenu")
         {
             Debug.LogWarning("Player spawn attempted in an invalid scene.");
             return;
@@ -49,5 +43,17 @@ public class CustomNetworkManager : NetworkManager
             DataManager.Instance.SavePlayerData(data, evictFromCache: true);
         }
         base.OnServerDisconnect(conn);
+    }
+    
+    public override void OnClientConnect()
+    {
+        base.OnClientConnect();
+        OnClientConnectedEvent?.Invoke();
+    }
+
+    public override void OnClientDisconnect()
+    {
+        base.OnClientDisconnect();
+        OnClientDisconnectedEvent?.Invoke();
     }
 }
