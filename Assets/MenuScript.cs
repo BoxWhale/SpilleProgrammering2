@@ -173,9 +173,6 @@ public class MenuScript : MonoBehaviour
         // Start host
         Debug.Log("Starting host with scene: " + netManager.onlineScene);
         netManager.StartHost();
-
-        // Hide menu windows
-        HideAllWindows();
     }
 
     public void OnConnect()
@@ -244,8 +241,6 @@ public class MenuScript : MonoBehaviour
             // Start client
             Debug.Log($"Connecting to {address}:{port}");
             netManager.StartClient();
-            
-            HideAllWindows();
         }
 
     private void OnClientConnected()
