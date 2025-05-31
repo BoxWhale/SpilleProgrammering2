@@ -124,7 +124,7 @@ public class MenuScript : MonoBehaviour
         MainWindow.blocksRaycasts = false;
         PlayWindow.alpha = 0;
         PlayWindow.blocksRaycasts = false;
-        
+
     }
 
     #endregion
@@ -230,8 +230,8 @@ public class MenuScript : MonoBehaviour
         netManager.onlineScene = onlineSceneName;
 
         // Unregister previous callbacks
-        NetworkClient.OnConnectedEvent -= OnClientConnected;
-        NetworkClient.OnDisconnectedEvent -= OnClientDisconnected;
+/*         NetworkClient.OnConnectedEvent -= OnClientConnected;
+        NetworkClient.OnDisconnectedEvent -= OnClientDisconnected; */
 
         // Register new callbacks
         NetworkClient.OnConnectedEvent += OnClientConnected;
