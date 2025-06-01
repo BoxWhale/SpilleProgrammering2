@@ -1,17 +1,26 @@
-using Mirror;
 using UnityEngine;
 
-public class LevelCheckPoint : NetworkBehaviour
+public class LevelCheckPoint : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
+    [SerializeField] 
+    private int checkpointId;
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider collision)
     {
-
+        if (collision.gameObject.TryGetComponent(out PlayerStats playerStat))
+        {
+            if (playerStat.level != checkpointId)
+            {
+                playerStat.level = checkpointId;
+            }
+            else
+            {
+                Debug.Log("Player is already registered to this checkpoint: " + checkpointId);
+            }
+        }
+        else
+        {
+            Debug.Log("Collision with non-player object detected: " + collision.gameObject.name);
+        }
     }
 }
