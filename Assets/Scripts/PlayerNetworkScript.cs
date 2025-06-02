@@ -84,8 +84,20 @@ public class PlayerNetworkScript : NetworkBehaviour
 
     private void ChangeName(string oldName, string newName)
     {
-        if (playerNameText != null) playerNameText.text = newName;
-        else playerNameText.text = "DefaultPlayer";
+        if (playerNameText != null)
+        {
+            playerNameText.text = newName;
+        }
+        else
+        {
+            // Create the text component first if it doesn't exist
+            CreateNameDisplay();
+            // Now playerNameText should be initialized
+            if (playerNameText != null)
+            {
+                playerNameText.text = newName;
+            }
+        }
     }
 
     private void CreateNameDisplay()
@@ -96,7 +108,10 @@ public class PlayerNetworkScript : NetworkBehaviour
             playerNameText.text = playerName;
             return;
         }
-
+        
+        // Set the current name if available
+        if (string.IsNullOrEmpty(playerName)) playerName = "DefaultPlayer";
+        
         // Create a new GameObject as a child of the player
         var nameDisplayObject = new GameObject("NameDisplay");
         nameDisplayObject.transform.SetParent(transform);
@@ -108,10 +123,6 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerNameText.alignment = TextAlignmentOptions.Center;
         playerNameText.fontSize = 3;
         playerNameText.color = Color.white;
-
-        // Set the current name if available
-        if (!string.IsNullOrEmpty(playerName)) playerNameText.text = playerName;
-        else playerNameText.text = "DefaultPlayer";
     }
 
     [Command]

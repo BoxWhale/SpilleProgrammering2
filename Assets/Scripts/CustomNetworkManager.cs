@@ -9,6 +9,18 @@ public class CustomNetworkManager : NetworkManager
     public static event Action OnClientDisconnectedEvent;
 
     private bool serverStarted;
+    
+    private static CustomNetworkManager _instance;
+
+    private void OnServerInitialized()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        } else {
+            _instance = this;
+        }
+    }
 
     // This method is called when the server starts
     public override void OnStartServer()

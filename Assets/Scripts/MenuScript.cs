@@ -8,9 +8,8 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript : MonoBehaviour
 {
-    private DataManager _dataManager;
     private PlayerData _pd;
-    [SerializeField] private NetworkManager netManager;
+    [SerializeField] private CustomNetworkManager netManager;
     public int defaultPort = 7777;
 
     [Header("Windows")] 
@@ -24,10 +23,18 @@ public class MenuScript : MonoBehaviour
     public TMP_InputField addressConnect;
     public TMP_InputField portConnect;
     public TMP_InputField portHost;
+    
+    private static MenuScript _instance;
 
     private void Awake()
     {
-        _dataManager = DataManager.Instance;
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        } else {
+            _instance = this;
+        }
+        
         DontDestroyOnLoad(gameObject);
         InitializeUI();
         InitializeNetworkManager();
@@ -46,7 +53,7 @@ public class MenuScript : MonoBehaviour
     {
         if (netManager == null)
         {
-            netManager = FindFirstObjectByType<NetworkManager>();
+            netManager = FindFirstObjectByType<CustomNetworkManager>();
             if (netManager == null)
             {
                 Debug.LogError("NetworkManager not found! Add a NetworkManager to your scene.");
@@ -152,7 +159,7 @@ public class MenuScript : MonoBehaviour
     {
         if (netManager == null)
         {
-            netManager = FindFirstObjectByType<NetworkManager>();
+            netManager = FindFirstObjectByType<CustomNetworkManager>();
             if (netManager == null)
             {
                 Debug.LogError("Cannot connect: NetworkManager not found!");
