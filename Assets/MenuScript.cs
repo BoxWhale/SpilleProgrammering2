@@ -27,7 +27,7 @@ public class MenuScript : MonoBehaviour
 
     private void Awake()
     {
-        _dataManager = GetComponent<DataManager>();
+        _dataManager = DataManager.Instance;
         DontDestroyOnLoad(gameObject);
         InitializeUI();
         InitializeNetworkManager();
@@ -73,17 +73,7 @@ public class MenuScript : MonoBehaviour
     public void OnStart()
     {
         var username = usernameInput.text;
-        if (!string.IsNullOrEmpty(username))
-        {
-            _pd = _dataManager.GetPlayerData(username);
-            PlayerPrefs.SetString("PlayerName", _pd.username);
-            Debug.Log($"Player {_pd.username} loaded with Scene={_pd.SceneNumber}, Level={_pd.LevelNumber}");
-        }
-        else
-        {
-            Debug.LogWarning("No username provided. Using default values.");
-            _pd = new PlayerData("DefaultPlayer");
-        }
+        PlayerPrefs.SetString("PlayerName", username);
 
         OnWindowSwap();
     }
@@ -155,26 +145,6 @@ public class MenuScript : MonoBehaviour
             }
         }
 
-        // Make sure we have player data loaded
-        if (_pd == null && PlayerPrefs.HasKey("PlayerName"))
-        {
-            var username = PlayerPrefs.GetString("PlayerName");
-            _pd = _dataManager.GetPlayerData(username);
-            Debug.Log($"Loaded player data for {username} before hosting");
-        }
-
-        // Set the online scene based on player's saved progress
-        if (_pd != null)
-        {
-            netManager.onlineScene = _pd.SceneNumber.ToString();
-            Debug.Log($"Setting online scene to {_pd.SceneNumber} based on saved player data");
-        }
-        else
-        {
-            netManager.onlineScene = "1"; // Default to scene 1
-            Debug.Log("No player data found. Using default scene 1");
-        }
-
         Debug.Log("Starting host with scene: " + netManager.onlineScene);
         netManager.StartHost();
     }
@@ -233,15 +203,6 @@ public class MenuScript : MonoBehaviour
     private void OnClientDisconnected()
     {
         Debug.Log("Disconnected from server");
-
-        if (_dataManager != null)
-        {
-            _dataManager.SaveAllAndClearCache();
-            Debug.Log("Player data saved to disk on disconnect");
-        }
-
-        if (NetworkServer.active) NetworkServer.Shutdown();
-        if (NetworkClient.isConnected) NetworkClient.Disconnect();
         
         LoadOfflineScene();
         ShowMainWindow();

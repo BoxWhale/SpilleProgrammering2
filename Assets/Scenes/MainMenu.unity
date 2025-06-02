@@ -195,7 +195,6 @@ GameObject:
   - component: {fileID: 120648816}
   - component: {fileID: 120648815}
   - component: {fileID: 120648819}
-  - component: {fileID: 120648820}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -307,18 +306,6 @@ MonoBehaviour:
   addressConnect: {fileID: 206422286}
   portConnect: {fileID: 1688366953}
   portHost: {fileID: 1887176712}
---- !u!114 &120648820
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 120648814}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd463d7c8297ce247b1dcb4a667d4289, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &206422284
 GameObject:
   m_ObjectHideFlags: 0
