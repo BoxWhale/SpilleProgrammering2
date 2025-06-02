@@ -101,8 +101,6 @@ public class PlayerNetworkScript : NetworkBehaviour
 
     private void CreateNameDisplay()
     {
-        // Set name to default if playerName is null or empty
-        if (string.IsNullOrEmpty(playerNameText.text)) playerNameText.text = "DefaultPlayer";
         
         // Create a new GameObject as a child of the player
         var nameDisplayObject = new GameObject("NameDisplay");
@@ -115,19 +113,25 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerNameText.alignment = TextAlignmentOptions.Center;
         playerNameText.fontSize = 3;
         playerNameText.color = Color.white;
+        // Set name to default if playerName is null or empty
+        if (string.IsNullOrEmpty(playerName)) playerNameText.text = "DefaultPlayer";
+        else playerNameText.text = playerName;
     }
 
     [Command]
     private void CmdSetPlayerName(string name)
     {
         playerName = name;
-        RpcPlayerName();
     }
 
     [ClientRpc]
     private void RpcPlayerName()
     {
-        CreateNameDisplay();
+        // Only create display if it doesn't exist yet
+        if (playerNameText == null)
+            CreateNameDisplay();
+        else
+            playerNameText.text = string.IsNullOrEmpty(playerName) ? "DefaultPlayer" : playerName;
     }
 
     private void LateUpdate()
