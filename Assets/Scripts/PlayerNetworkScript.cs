@@ -84,10 +84,12 @@ public class PlayerNetworkScript : NetworkBehaviour
 
     private void ChangeName(string oldName, string newName)
     {
+        
         // Check to see if TextMeshPro component is already initialized
         if (playerNameText != null)
         {
             // Update the text directly if it exists
+            if (string.IsNullOrEmpty(newName)) newName = "DefaultPlayer"; // Set to default if empty
             playerNameText.text = newName;
         }
         else // If the TextMeshPro component is not initialized yet
@@ -99,7 +101,7 @@ public class PlayerNetworkScript : NetworkBehaviour
 
     private void CreateNameDisplay()
     {
-        // Set the current name if available
+        // Set name to default if playerName is null or empty
         if (string.IsNullOrEmpty(playerNameText.text)) playerNameText.text = "DefaultPlayer";
         
         // Create a new GameObject as a child of the player
