@@ -8,11 +8,10 @@ public class PlayerNetworkScript : NetworkBehaviour
     [Header("References")] private Rigidbody _rb;
     [SerializeField] private GameObject playerCamera;
     [SerializeField] private GameObject sun;
-
-    [SerializeField] [SyncVar(hook = nameof(ChangeName))]
-    public string playerName;
+    [SerializeField] private GameObject nameDisplayObject;
 
     [SerializeField] private TextMeshPro playerNameText;
+    
 
     [Header("Movement")] [SerializeField] [Tooltip("Player movement speed")]
     private float speed = 5f;
@@ -63,13 +62,20 @@ public class PlayerNetworkScript : NetworkBehaviour
         moveAction.Enable();
         lookAction.Enable();
         leaveAction.Enable();
-        if (PlayerPrefs.HasKey("PlayerName")) CmdSetPlayerName(PlayerPrefs.GetString("PlayerName"));
     }
 
     public override void OnStartClient()
     {
-        //base.OnStartClient();
-        CreateNameDisplay();
+        base.OnStartClient();
+        // Create our own name display only if not already created
+        if (nameDisplayObject == null)
+        {
+            if (isLocalPlayer)
+            {
+                // Local player requests name creation from server
+                CmdRequestCreateNameDisplay();
+            }
+        }
     }
 
     public override void OnStopLocalPlayer()
@@ -80,30 +86,98 @@ public class PlayerNetworkScript : NetworkBehaviour
         moveAction.Disable();
         lookAction.Disable();
         leaveAction.Disable();
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
-
-    private void ChangeName(string oldName, string newName)
+    
+    #region DisplayNameCreation
+    
+    // Track if we've already created displays for all players in the scene
+    private bool hasCreatedNameDisplays = false;
+    
+    // Called at the start of the game and when new players join
+    [Command]
+    private void CmdRequestCreateNameDisplay()
     {
+        // Create name display for the requesting client
+        if (nameDisplayObject == null)
+        {
+            CreateNameDisplayLocal();
+        }
         
-        // Check to see if TextMeshPro component is already initialized
-        if (playerNameText != null)
+        // Tell all clients to create this player's name display
+        RpcCreateNameDisplayForPlayer(netId);
+        
+        // Tell this client to create name displays for all existing players
+        TargetCreateNameDisplaysForAllPlayers(connectionToClient);
+    }
+    
+    // Creates name displays for the player with the given netId on all clients
+    [ClientRpc]
+    private void RpcCreateNameDisplayForPlayer(uint playerNetId)
+    {
+        foreach (var player in FindObjectsOfType<PlayerNetworkScript>())
         {
-            // Update the text directly if it exists
-            if (string.IsNullOrEmpty(newName)) newName = "DefaultPlayer"; // Set to default if empty
-            playerNameText.text = newName;
+            if (player.netId == playerNetId)
+            {
+                // Make sure player doesn't already have a name display
+                RemoveDuplicateNameDisplays(player);
+                
+                // Create name display if needed
+                if (player.nameDisplayObject == null)
+                {
+                    player.CreateNameDisplayLocal();
+                }
+                break;
+            }
         }
-        else // If the TextMeshPro component is not initialized yet
+    }
+    
+    // Creates name displays for all existing players on the target client
+    [TargetRpc]
+    private void TargetCreateNameDisplaysForAllPlayers(NetworkConnection target)
+    {
+        if (hasCreatedNameDisplays) return;
+        
+        foreach (var player in FindObjectsOfType<PlayerNetworkScript>())
         {
-            // Create the TextMeshPro component
-            CreateNameDisplay();
+            // Make sure player doesn't already have a name display
+            RemoveDuplicateNameDisplays(player);
+            
+            // Create name display if needed
+            if (player.nameDisplayObject == null)
+            {
+                player.CreateNameDisplayLocal();
+            }
+        }
+        
+        hasCreatedNameDisplays = true;
+    }
+    
+    // Removes duplicate name displays from a player if any exist
+    private void RemoveDuplicateNameDisplays(PlayerNetworkScript player)
+    {
+        if (player.nameDisplayObject != null && player.playerNameText != null)
+        {
+            // Check if the player has multiple name display objects as children
+            foreach (Transform child in player.transform)
+            {
+                if (child.name == "NameDisplay" && child.gameObject != player.nameDisplayObject)
+                {
+                    Destroy(child.gameObject);
+                    Debug.Log($"Removed duplicate name display from player {player.netId}");
+                }
+            }
         }
     }
 
-    private void CreateNameDisplay()
+    private void CreateNameDisplayLocal()
     {
+        // Skip if we already have a name display
+        if (nameDisplayObject != null) return;
         
         // Create a new GameObject as a child of the player
-        var nameDisplayObject = new GameObject("NameDisplay");
+        nameDisplayObject = new GameObject("NameDisplay");
         nameDisplayObject.transform.SetParent(transform);
         nameDisplayObject.transform.localPosition = Vector3.up * 1f;
         nameDisplayObject.transform.localRotation = Quaternion.Euler(0, -90, 0);
@@ -114,38 +188,47 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerNameText.fontSize = 3;
         playerNameText.color = Color.white;
         // Set name to default if playerName is null or empty
-        if (string.IsNullOrEmpty(playerName)) playerNameText.text = "DefaultPlayer";
-        else playerNameText.text = playerName;
+        if (string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName"))) playerNameText.text = "DefaultPlayer";
+        else playerNameText.text = PlayerPrefs.GetString("PlayerName");
     }
-
-    [Command]
-    private void CmdSetPlayerName(string name)
-    {
-        playerName = name;
-    }
-
-    [ClientRpc]
-    private void RpcPlayerName()
-    {
-        // Only create display if it doesn't exist yet
-        if (playerNameText == null)
-            CreateNameDisplay();
-        else
-            playerNameText.text = string.IsNullOrEmpty(playerName) ? "DefaultPlayer" : playerName;
-    }
+    #endregion
 
     private void LateUpdate()
     {
-        if (isServer) ShadowDetection();
+        if (isServer)
+        {
+            ShadowDetection();
+        }
         if (isLocalPlayer) CameraRotation();
+        
     }
 
     [Client]
     private void Update()
     {
         if (!isLocalPlayer) return;
+        RotateDisplay();
         PlayerMovement();
         if (leaveAction.triggered) LeaveGame();
+    }
+
+
+    [Client]
+    private void RotateDisplay()
+    {
+        if (isLocalPlayer && playerCamera != null)
+        {
+            // Find all player name displays in the scene
+            foreach (var player in FindObjectsOfType<PlayerNetworkScript>())
+            {
+                if (player.playerNameText != null && player.playerNameText.gameObject != null)
+                {
+                    // Make the name display face our camera
+                    player.playerNameText.transform.LookAt(playerCamera.transform.position);
+                    player.playerNameText.transform.Rotate(0, 180, 0); // Face the camera
+                }
+            }
+        }
     }
 
     [Client]
@@ -208,4 +291,3 @@ public class PlayerNetworkScript : NetworkBehaviour
             NetworkManager.singleton.StopClient();
     }
 }
-

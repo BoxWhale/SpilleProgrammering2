@@ -104,7 +104,7 @@ public class CustomNetworkManager : NetworkManager
         {
             var username = conn.connectionId.ToString();
             var player = conn.identity.GetComponent<PlayerNetworkScript>();
-            if (player != null && !string.IsNullOrEmpty(player.playerName)) username = player.playerName;
+            if (player != null && !string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName"))) username = PlayerPrefs.GetString("PlayerName");
 
             var stats = conn.identity.GetComponent<PlayerStats>();
             if (stats != null)
