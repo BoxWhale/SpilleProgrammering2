@@ -2,6 +2,7 @@ using Mirror;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerNetworkScript : NetworkBehaviour
 {
@@ -11,7 +12,27 @@ public class PlayerNetworkScript : NetworkBehaviour
     [SerializeField] private GameObject nameDisplayObject;
 
     [SerializeField] private TextMeshPro playerNameText;
-    
+
+    #region PlayerDisplayName
+    // Add SyncVar for player name to ensure it syncs properly across network
+    [SyncVar(hook = nameof(OnPlayerNameChanged))]
+    public string playerDisplayName = "";
+
+    [Command]
+    private void CmdSetPlayerName(string newName)
+    {
+        playerDisplayName = newName;
+        Debug.Log($"Player name set to: {newName} for player {netId}");
+    }
+
+    private void OnPlayerNameChanged(string oldName, string newName)
+    {
+        if (playerNameText != null)
+        {
+            playerNameText.text = newName;
+        }
+    }
+    #endregion
 
     [Header("Movement")] [SerializeField] [Tooltip("Player movement speed")]
     private float speed = 5f;
@@ -67,12 +88,20 @@ public class PlayerNetworkScript : NetworkBehaviour
     public override void OnStartClient()
     {
         base.OnStartClient();
-        // Create our own name display only if not already created
-        if (nameDisplayObject == null)
+        
+        // If this is our own player, set the player name on the server
+        if (isLocalPlayer)
         {
-            if (isLocalPlayer)
+            string playerName = "DefaultPlayer";
+            if (!string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName")))
             {
-                // Local player requests name creation from server
+                playerName = PlayerPrefs.GetString("PlayerName");
+            }
+            CmdSetPlayerName(playerName);
+            
+            // Local player requests name creation from server
+            if (nameDisplayObject == null)
+            {
                 CmdRequestCreateNameDisplay();
             }
         }
@@ -187,19 +216,19 @@ public class PlayerNetworkScript : NetworkBehaviour
         playerNameText.alignment = TextAlignmentOptions.Center;
         playerNameText.fontSize = 3;
         playerNameText.color = Color.white;
-        // Set name to default if playerName is null or empty
-        if (string.IsNullOrEmpty(PlayerPrefs.GetString("PlayerName"))) playerNameText.text = "DefaultPlayer";
-        else playerNameText.text = PlayerPrefs.GetString("PlayerName");
+        // Set name to default if playerDisplayName is null or empty
+        if (string.IsNullOrEmpty(playerDisplayName)) playerNameText.text = "DefaultPlayer";
+        else playerNameText.text = playerDisplayName;
     }
     #endregion
 
     private void LateUpdate()
     {
-        if (isServer)
+        if (isLocalPlayer)
         {
             ShadowDetection();
+            CameraRotation();
         }
-        if (isLocalPlayer) CameraRotation();
         
     }
 
@@ -264,7 +293,7 @@ public class PlayerNetworkScript : NetworkBehaviour
         _rb.linearVelocity = Vector3.Lerp(_rb.linearVelocity, targetVelocity, acceleration * Time.deltaTime);
     }
 
-    [Server]
+    [Client]
     private void ShadowDetection()
     {
         if (sun == null) return;
@@ -273,7 +302,25 @@ public class PlayerNetworkScript : NetworkBehaviour
         if (Physics.Raycast(ray, out var hit, 100, LayerMask.GetMask("Shadow")))
             Debug.DrawRay(ray.origin, ray.direction * 1000, Color.green);
         else
+        {
             Debug.DrawRay(ray.origin, ray.direction * 1000, Color.red);
+            
+            LevelCheckPoint spawnCheckpoint = null;
+            PlayerStats ps = transform.GetComponent<PlayerStats>(); 
+            foreach (var cp in FindObjectsByType<LevelCheckPoint>(FindObjectsSortMode.None))
+            {
+                var idField = typeof(LevelCheckPoint).GetField("checkpointId", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                int cpId = (int)idField.GetValue(cp);
+                if (cpId == ps.level)
+                {
+                    spawnCheckpoint = cp;
+                    break;
+                }
+            }
+            transform.position = spawnCheckpoint.transform.position;
+            
+        }
+            
     }
 
     private void LeaveGame()
