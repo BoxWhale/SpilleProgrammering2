@@ -14,12 +14,8 @@ public class CustomNetworkManager : NetworkManager
     public override void OnStartServer()
     {
         base.OnStartServer();
-        if (DataManager.Instance == null)
-            new GameObject("DatabaseManager")
-                .AddComponent<DataManager>();
 
         serverStarted = true;
-        Debug.Log("Server started - DataManager initialized");
     }   
     // This method is called when the server is stopped
     public override void OnStopServer()
