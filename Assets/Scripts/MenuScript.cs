@@ -72,9 +72,8 @@ public class MenuScript : MonoBehaviour
 
     public void OnStart()
     {
-        var username = usernameInput.text;
+        var username = !string.IsNullOrWhiteSpace(usernameInput.text) ? usernameInput.text.Trim() : "DefaultPlayer";
         PlayerPrefs.SetString("PlayerName", username);
-
         OnWindowSwap();
     }
 
@@ -203,7 +202,6 @@ public class MenuScript : MonoBehaviour
     private void OnClientDisconnected()
     {
         Debug.Log("Disconnected from server");
-        
         LoadOfflineScene();
         ShowMainWindow();
     }

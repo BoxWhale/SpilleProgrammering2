@@ -29,13 +29,6 @@ public class CustomNetworkManager : NetworkManager
     // This method is called when a player is added to or joins the server
     public override void OnServerAddPlayer(NetworkConnectionToClient conn)
     {
-        /* if (SceneManager.GetActiveScene().name == "MainMenu")
-        {
-            Debug.LogWarning("Player spawn attempted in an invalid scene.");
-            return;
-        } */
-
-        //base.OnServerAddPlayer(conn);
 
         // Load player data from the database
         var username = "DefaultPlayer";

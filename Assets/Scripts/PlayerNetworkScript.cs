@@ -37,7 +37,6 @@ public class PlayerNetworkScript : NetworkBehaviour
     [SerializeField] [Tooltip("x = min, y = max vertical look angle")]
     private Vector2 verticalClamp = new(-30f, 60f);
 
-    [SerializeField] [HideInInspector] private Vector2 look;
 
     [Header("Input")] private PlayerInput playerInput;
     private InputAction moveAction;
@@ -86,6 +85,7 @@ public class PlayerNetworkScript : NetworkBehaviour
     private void ChangeName(string oldName, string newName)
     {
         if (playerNameText != null) playerNameText.text = newName;
+        else playerNameText.text = "DefaultPlayer";
     }
 
     private void CreateNameDisplay()
@@ -111,6 +111,7 @@ public class PlayerNetworkScript : NetworkBehaviour
 
         // Set the current name if available
         if (!string.IsNullOrEmpty(playerName)) playerNameText.text = playerName;
+        else playerNameText.text = "DefaultPlayer";
     }
 
     [Command]

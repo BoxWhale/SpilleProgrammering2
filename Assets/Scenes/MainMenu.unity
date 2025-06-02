@@ -295,17 +295,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 120648814}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dcd4481749eb0ba469c3124c852b06a5, type: 3}
+  m_Script: {fileID: 11500000, guid: fa0804b87014a8046aee5ff931e153e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  netManager: {fileID: 1234022370}
+  netManager: {fileID: 0}
   defaultPort: 7777
   MainWindow: {fileID: 300340708}
   PlayWindow: {fileID: 1239334711}
   usernameInput: {fileID: 896654526}
   addressConnect: {fileID: 206422286}
-  portConnect: {fileID: 1688366953}
-  portHost: {fileID: 1887176712}
+  portConnect: {fileID: 1887176712}
+  portHost: {fileID: 1688366953}
 --- !u!1 &206422284
 GameObject:
   m_ObjectHideFlags: 0
