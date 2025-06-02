@@ -84,19 +84,16 @@ public class PlayerNetworkScript : NetworkBehaviour
 
     private void ChangeName(string oldName, string newName)
     {
+        // Check to see if TextMeshPro component is already initialized
         if (playerNameText != null)
         {
+            // Update the text directly if it exists
             playerNameText.text = newName;
         }
-        else
+        else // If the TextMeshPro component is not initialized yet
         {
-            // Create the text component first if it doesn't exist
+            // Create the TextMeshPro component
             CreateNameDisplay();
-            // Now playerNameText should be initialized
-            if (playerNameText != null)
-            {
-                playerNameText.text = newName;
-            }
         }
     }
 
