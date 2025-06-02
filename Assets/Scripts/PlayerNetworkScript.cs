@@ -99,13 +99,6 @@ public class PlayerNetworkScript : NetworkBehaviour
 
     private void CreateNameDisplay()
     {
-        if (playerNameText != null)
-        {
-            // If the name display already exists, just update the text
-            playerNameText.text = playerName;
-            return;
-        }
-        
         // Set the current name if available
         if (string.IsNullOrEmpty(playerName)) playerName = "DefaultPlayer";
         
