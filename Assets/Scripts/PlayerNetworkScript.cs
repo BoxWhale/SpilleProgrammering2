@@ -100,7 +100,7 @@ public class PlayerNetworkScript : NetworkBehaviour
     private void CreateNameDisplay()
     {
         // Set the current name if available
-        if (string.IsNullOrEmpty(playerName)) playerName = "DefaultPlayer";
+        if (string.IsNullOrEmpty(playerNameText.text)) playerNameText.text = "DefaultPlayer";
         
         // Create a new GameObject as a child of the player
         var nameDisplayObject = new GameObject("NameDisplay");
