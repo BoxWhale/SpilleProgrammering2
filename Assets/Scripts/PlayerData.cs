@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using UnityEngine;
 using SQLite;
 
 [Table("players")]
@@ -25,12 +27,17 @@ public class PlayerData
 
     #endregion
 
-    public PlayerData() { }
+    public PlayerData()
+    {
+        SceneNumber = 1;
+        LevelNumber = 1;
+    }
 
     public PlayerData(string username)
     {
         this.username = username;
         SceneNumber = 1;
         LevelNumber = 1;
+        UnityEngine.Debug.Log($"Created PlayerData for {username} with default stage {SceneNumber}.{LevelNumber}");
     }
 }
