@@ -68,7 +68,7 @@ public class PlayerNetworkScript : NetworkBehaviour
 
     public override void OnStartClient()
     {
-        base.OnStartClient();
+        //base.OnStartClient();
         CreateNameDisplay();
     }
 

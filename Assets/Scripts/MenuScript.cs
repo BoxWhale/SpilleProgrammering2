@@ -79,6 +79,7 @@ public class MenuScript : MonoBehaviour
 
     public void OnStart()
     {
+        InitializeNetworkManager();
         var username = !string.IsNullOrWhiteSpace(usernameInput.text) ? usernameInput.text.Trim() : "DefaultPlayer";
         PlayerPrefs.SetString("PlayerName", username);
         OnWindowSwap();
@@ -141,6 +142,7 @@ public class MenuScript : MonoBehaviour
 
     public void OnHost()
     {
+        InitializeNetworkManager();
         if (ushort.TryParse(portHost.text, out var port))
         {
             var kcpTransport = netManager.GetComponent<KcpTransport>();
@@ -157,6 +159,7 @@ public class MenuScript : MonoBehaviour
 
     public void OnConnect()
     {
+        InitializeNetworkManager();
         if (netManager == null)
         {
             netManager = FindFirstObjectByType<CustomNetworkManager>();
